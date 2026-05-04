@@ -11,93 +11,71 @@ class Renderer:
 
     def draw(self, sim):
         self.screen.fill((30, 30, 30))
-        # === PARAMETRY ===
+
+        center_x = self.width // 2
         center_y = self.height // 2
+
         lane_width = 35
-        lanes = 2
+        lanes = 5
+        road_half = lane_width * lanes + 20
 
-        road_half = lane_width * lanes + 30
+        # # === DROGA POZIOMA ===
+        # pygame.draw.rect(
+        #     self.screen,
+        #     (50, 50, 50),
+        #     (0, center_y - road_half, self.width, road_half * 2)
+        # )
 
-        # === ASFALT ===
-        pygame.draw.rect(
-            self.screen,
-            (50, 50, 50),
-            (0, center_y - road_half, self.width, road_half * 2)
-        )
+        # # === DROGA PIONOWA ===
+        # pygame.draw.rect(
+        #     self.screen,
+        #     (50, 50, 50),
+        #     (center_x - road_half, 0, road_half * 2, self.height)
+        # )
 
-        # === TOR TRAMWAJOWY (środek) ===
-        track_offset = 10
-
-        pygame.draw.line(
-            self.screen,
-            (180, 180, 180),
-            (0, center_y - track_offset),
-            (self.width, center_y - track_offset),
-            3
-        )
-
-        pygame.draw.line(
-            self.screen,
-            (180, 180, 180),
-            (0, center_y + track_offset),
-            (self.width, center_y + track_offset),
-            3
-        )
-
-        # === LINIA ŚRODKOWA (przerywana) ===
-        for x in range(0, self.width, 40):
-            pygame.draw.line(
-                self.screen,
-                (255, 255, 255),
-                (x, center_y),
-                (x + 20, center_y),
-                2
-            )
-
-        # === PASY (przerywane) ===
+        # === LINIE PASÓW (POZIOME) ===
         for i in range(1, lanes):
             offset = i * lane_width
 
             # góra
             y = center_y - offset
-            for x in range(0, self.width, 40):
-                pygame.draw.line(self.screen, (200, 200, 200), (x, y), (x + 20, y), 1)
+            pygame.draw.line(self.screen, (200, 200, 200), (0, y), (self.width, y), 1)
 
             # dół
             y = center_y + offset
-            for x in range(0, self.width, 40):
-                pygame.draw.line(self.screen, (200, 200, 200), (x, y), (x + 20, y), 1)
+            pygame.draw.line(self.screen, (200, 200, 200), (0, y), (self.width, y), 1)
 
-        # === LINIE KRAWĘDZI DROGI ===
-        pygame.draw.line(self.screen, (255, 255, 255),
-                        (0, center_y - road_half), (self.width, center_y - road_half), 2)
+        # === LINIE PASÓW (PIONOWE) ===
+        for i in range(1, lanes):
+            offset = i * lane_width
 
-        pygame.draw.line(self.screen, (255, 255, 255),
-                        (0, center_y + road_half), (self.width, center_y + road_half), 2)
+            # lewo
+            x = center_x - offset
+            pygame.draw.line(self.screen, (200, 200, 200), (x, 0), (x, self.height), 1)
 
+            # prawo
+            x = center_x + offset
+            pygame.draw.line(self.screen, (200, 200, 200), (x, 0), (x, self.height), 1)
+
+        # === POJAZDY ===
         for e in sim.entities:
-            # POJAZDY (mają length)
             if hasattr(e, "length"):
+
+                # poziome auto
+                if e.direction == "horizontal":
+                    width = e.length * 5
+                    height = 10
+
+                # pionowe auto
+                else:
+                    width = 10
+                    height = e.length * 5
+
                 pygame.draw.rect(
                     self.screen,
                     (0, 200, 0),
-                    (e.x, e.y, e.length * 5, 10)
+                    (e.x, e.y, width, height)
                 )
-
-            # PIESI (nie mają length)
-            else:
-                pygame.draw.circle(
-                    self.screen,
-                    (255, 255, 0),
-                    (int(e.x), int(e.y)),
-                    5
-                )
-        # rysuj światło
-        color = (0, 255, 0) if sim.systems[0].traffic_light.state == "GREEN" else (255, 0, 0)
-
-        pygame.draw.circle(self.screen, color, (50, 50), 15)
-        
-        pygame.draw.line(self.screen, (255, 255, 255), (720, 0), (720, self.height), 2)
 
         pygame.display.flip()
         self.clock.tick(60)

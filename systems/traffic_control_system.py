@@ -1,28 +1,49 @@
 class TrafficControlSystem:
-    def __init__(self, traffic_light):
+    def __init__(self, traffic_light, stop_x):
         self.traffic_light = traffic_light
-        self.stop_x = 720  # 👈 punkt zatrzymania (środek skrzyżowania)
+        self.stop_x = stop_x
 
     def update(self, sim, dt):
         self.traffic_light.update(dt)
 
         for e in sim.entities:
-            if hasattr(e, "vx") and hasattr(e, "length"):
+            if not (hasattr(e, "vx") and hasattr(e, "length")):
+                continue
 
-                front_x = e.x + e.length * 5
-                distance = self.stop_x - front_x
+            # --- START ---
+            target_vx = e.desired_vx
 
-                if self.traffic_light.state == "RED":
+            front_x = e.x + e.length * 5
+            distance = self.stop_x - front_x
 
-                    if distance > 0:
-                        # im bliżej, tym wolniej
-                        slow_factor = min(distance / 50, 1)
+            # --- ŚWIATŁA ---
+            if self.traffic_light.state == "RED":
+                if distance > 0:
+                    slow_factor = min(distance / 50, 1)
+                    target_vx = e.desired_vx * slow_factor
 
-                        e.vx = e.desired_vx * slow_factor
+                    if distance < 5:
+                        target_vx = 0
+                        e.x = self.stop_x - e.length * 5
 
-                        # bardzo blisko → zatrzymaj dokładnie
-                        if distance < 5:
-                            e.vx = 0
+            # --- INNE POJAZDY ---
+            for other in sim.entities:
+                if other is e:
+                    continue
 
-                elif self.traffic_light.state == "GREEN":
-                    e.vx = e.desired_vx
+                if not hasattr(other, "length"):
+                    continue
+
+                # 👇 TU JUŻ POWINNO BYĆ lane_id (następny krok)
+                if hasattr(other, "lane_id") and other.lane_id == e.lane_id:
+                    if other.x > e.x:
+                        gap = other.x - (e.x + e.length * 5)
+
+                    if gap < 20:
+                        gap = max(gap, 0)
+
+                        factor = gap / 20
+                        target_vx = min(target_vx, other.vx * factor)
+
+            # --- FINAL ---
+            e.vx = max(target_vx, 0)

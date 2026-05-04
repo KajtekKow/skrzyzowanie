@@ -12,6 +12,7 @@ class MovingEntity(Entity):
         self.vx = vx 
         self.vy = vy
         self.desired_vx = vx  # 👈 globalnie dla wszystkich
+        self.direction = "horizontal"
 
 
 # === VEHICLES ===
@@ -20,11 +21,13 @@ class Vehicle(MovingEntity):
     def __init__(self, x, y, vx=0, vy=0):
         super().__init__(x, y, vx + np.random.randint(-10, 10), vy)
         self.length = 4
+        self.lane = None
+        self.progress = 0
 
 
 class Car(Vehicle):
     def __init__(self, x, y):
-        super().__init__(x, y, vx=50 + np.random.randint(-5, 5), vy=0)
+        super().__init__(x, y, vx=50 + np.random.randint(-5, 5), vy=50)
 
 
 class Bus(Vehicle):

@@ -4,6 +4,7 @@ from systems.traffic_control_system import TrafficControlSystem
 from infrastructure.traffic_light import TrafficLight
 from entities.moving_entities import Car, Bus, Tram, Pedestrian
 from rendering.pygame_renderer import Renderer
+from infrastructure.intersection import Intersection
 import pygame
 
 # --- INIT ---
@@ -14,14 +15,13 @@ renderer = Renderer()
 traffic_light = TrafficLight()
 
 # --- SYSTEMS (kolejność ma znaczenie!) ---
-sim.add_system(TrafficControlSystem(traffic_light))
+sim.add_system(TrafficControlSystem(traffic_light, 0))
 sim.add_system(MovementSystem())
 
 # --- ENTITIES ---
-sim.add_entity(Car(100, 280))
-sim.add_entity(Car(100, 300))
-sim.add_entity(Bus(50, 320))
-sim.add_entity(Tram(0, 350))
+intersection = Intersection()
+intersection.spawn(sim)
+
 # sim.add_entity(Pedestrian(850, 260))
 
 # --- LOOP ---
