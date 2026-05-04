@@ -5,7 +5,7 @@ class TrafficLight:
         self.x = x
         self.y = y
 
-    def update(self, dt, sim):
+    def update(self, dt, sim, index):
         self.timer += dt
 
         if self.state == "GREEN" and self.timer > 5:

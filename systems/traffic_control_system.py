@@ -3,8 +3,8 @@ class TrafficControlSystem:
         self.traffic_light = traffic_light
         self.stop_x = stop_x
 
-    def update(self, sim, dt):
-        self.traffic_light.update(dt, sim)
+    def update(self, sim, dt, index):
+        self.traffic_light.update(dt, sim, index)
 
         for e in sim.entities:
             if not (hasattr(e, "vx") and hasattr(e, "length")):

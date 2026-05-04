@@ -11,7 +11,9 @@ sim = Simulation()
 renderer = Renderer()
 
 # --- TRAFFIC LIGHT ---
-traffic_light = TrafficLight(720, 360)
+traffic_light = TrafficLight(720, 300)
+sim.add_traffic_light(traffic_light)
+traffic_light.update(3, sim, 0)
 
 # --- SYSTEMS (kolejność ma znaczenie!) ---
 sim.add_system(TrafficControlSystem(traffic_light, 0))
@@ -19,14 +21,16 @@ sim.add_system(MovementSystem())
 
 # --- ENTITIES ---
 intersection = Intersection()
+sim.add_intersection(intersection)
 intersection.spawn(sim)
+
 
 # sim.add_entity(Pedestrian(850, 260))
 
 # --- LOOP ---
 running = True
 while running:
-    sim.update(0.016)
+    sim.update(0.008)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

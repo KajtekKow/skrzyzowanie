@@ -1,6 +1,7 @@
 class Lane:
-    def __init__(self, start, checkpoint, end, direction):
+    def __init__(self, start, traffic_light, checkpoint, end, direction):
         self.start = start  # (x, y)
+        self.traffic_light = traffic_light
         self.checkpoint = checkpoint
         self.end = end      # (x, y)
         self.direction = direction  # 0/1

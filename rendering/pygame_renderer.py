@@ -76,6 +76,19 @@ class Renderer:
                     (0, 200, 0),
                     (e.x, e.y, width, height)
                 )
+                
+        # === TRAFFIC LIGHTS ===
+        for light in sim.traffic_lights:
+            if light.state == "GREEN":
+                color = (0, 255, 0)
+            else:
+                color = (255, 0, 0)
 
+            pygame.draw.circle(
+                self.screen,
+                color,
+                (int(light.x), int(light.y)),
+                10
+            )
         pygame.display.flip()
         self.clock.tick(60)
