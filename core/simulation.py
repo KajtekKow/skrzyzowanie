@@ -12,3 +12,7 @@ class Simulation:
     def update(self, dt):
         for system in self.systems:
             system.update(self, dt)
+            
+    def update_vehicles_green(self):
+        for e in self.entities:
+            e.is_stopped = False

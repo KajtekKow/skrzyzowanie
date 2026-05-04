@@ -12,7 +12,7 @@ sim = Simulation()
 renderer = Renderer()
 
 # --- TRAFFIC LIGHT ---
-traffic_light = TrafficLight()
+traffic_light = TrafficLight(720, 360)
 
 # --- SYSTEMS (kolejność ma znaczenie!) ---
 sim.add_system(TrafficControlSystem(traffic_light, 0))

@@ -13,6 +13,7 @@ class MovingEntity(Entity):
         self.vy = vy
         self.desired_vx = vx  # 👈 globalnie dla wszystkich
         self.direction = "horizontal"
+        self.is_stopped = False
 
 
 # === VEHICLES ===
