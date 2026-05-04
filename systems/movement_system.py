@@ -1,8 +1,22 @@
 class MovementSystem:
     def update(self, sim, dt):
-        for e in sim.entities:
+        n = sim.entities
+        t_x, t_y = sim.traffic_light.x, sim.traffic_light.y
+        
+        for i in range(n):
+            e = sim.entities[i]
+            
             if hasattr(e, "lane") and e.lane is not None:
-
+                
+                if sim.traffic_light.state == "RED":
+                    distance = ((t_x - e.x)**2 + (t_y - e.y)**2)**(1/2)
+                    stop_threshold = (e.length * 5) * (i + 1) + 5
+                                        
+                    if distance <= stop_threshold:
+                        e.is_stopped = True
+                        continue
+                        
+                e.is_stopped = False
                 # zwiększamy progres
                 speed = abs(e.vx) if e.lane.direction == "horizontal" else abs(e.vy)
                 e.progress += speed * dt / 500  # skalowanie

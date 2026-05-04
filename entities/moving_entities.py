@@ -12,7 +12,12 @@ class MovingEntity(Entity):
         self.vx = vx 
         self.vy = vy
         self.desired_vx = vx  # 👈 globalnie dla wszystkich
+<<<<<<< HEAD
         self.direction = direction
+=======
+        self.direction = "horizontal"
+        self.is_stopped = False
+>>>>>>> 902cbcffe387b1daf6e44ad6659668fc8b7d6f8c
 
 
 # === VEHICLES ===
