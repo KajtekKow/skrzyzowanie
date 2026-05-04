@@ -2,7 +2,6 @@ from core.simulation import Simulation
 from systems.movement_system import MovementSystem
 from systems.traffic_control_system import TrafficControlSystem
 from infrastructure.traffic_light import TrafficLight
-from entities.moving_entities import Car, Bus, Tram, Pedestrian
 from rendering.pygame_renderer import Renderer
 from infrastructure.intersection import Intersection
 import pygame

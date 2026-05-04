@@ -62,7 +62,7 @@ class Renderer:
             if hasattr(e, "length"):
 
                 # poziome auto
-                if e.direction == "horizontal":
+                if e.direction == 0:
                     width = e.length * 5
                     height = 10
 
