@@ -6,27 +6,30 @@ from rendering.pygame_renderer import Renderer
 from infrastructure.intersection import Intersection
 import pygame
 
-# --- INIT ---
+
 sim = Simulation()
 renderer = Renderer()
 
-# --- INTERSECTION + LIGHTS ---
 intersection = Intersection()
 sim.add_intersection(intersection)
 
-# dodanie WSZYSTKICH świateł z lane’ów
 for light in intersection.lights:
     sim.add_traffic_light(light)
 
-# --- SYSTEMS (kolejność ma znaczenie!) ---
-sim.add_system(TrafficControlSystem())  # tylko update świateł
-sim.add_system(SpawnSystem(0.1))        # spawn co ~1.2s
-sim.add_system(MovementSystem())        # ruch
+sim.add_system(TrafficControlSystem())
+sim.add_system(SpawnSystem(1.2))        
+sim.add_system(MovementSystem())        
 
-# --- LOOP ---
 running = True
+
 while running:
-    sim.update(0.016)
+    steps = 1
+    if sim.time_scale > 20: steps = 4  
+    if sim.time_scale > 500: steps = 10 
+    
+    sub_dt = 0.016 / steps
+    for _ in range(steps):
+        sim.update(sub_dt)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

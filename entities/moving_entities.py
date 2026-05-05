@@ -11,12 +11,9 @@ class MovingEntity(Entity):
         self.y = y
         self.vx = vx 
         self.vy = vy
-        self.desired_vx = vx  # 👈 globalnie dla wszystkich
+        self.desired_vx = vx 
         self.direction = direction
         self.is_stopped = False
-
-
-# === VEHICLES ===
 
 class Vehicle(MovingEntity):
     def __init__(self, x, y, direction, vx=0, vy=0):
@@ -35,15 +32,16 @@ class Bus(Vehicle):
     def __init__(self, x, y, direction):
         super().__init__(x, y, direction, vx=45, vy=45)
         self.length = 12
+        self.is_bus = True
 
 
 class Tram(MovingEntity):
     def __init__(self, x, y, direction):
-        super().__init__(x, y, direction, vx=45, vy=45)
-        self.length = 30
+        super().__init__(x, y, direction, vx=280, vy=280)
+        self.length = 50
+        self.turn = "STRAIGHT" 
+        self.is_tram = True
 
-
-# === PEDESTRIAN ===
 
 class Pedestrian(MovingEntity):
     def __init__(self, x, y):

@@ -11,16 +11,13 @@ class MovementSystem:
                 if not hasattr(e, "lane") or e.lane is None:
                     continue
 
-                # =========================
-                # INIT
-                # =========================
                 if not hasattr(e, "initialized"):
                     e.initialized = True
 
                     e.current_speed = 0
                     e.max_speed = max(abs(e.vx), abs(e.vy))
 
-                    e.acceleration = 320      # 🔥 szybciej rusza
+                    e.acceleration = 320
                     e.brake_power = 500
 
                     e.reaction_time = 0.4
@@ -30,9 +27,6 @@ class MovementSystem:
                 e.is_stopped = False
                 speed_factor = 1.0
 
-                # =========================
-                # KIERUNEK (segment)
-                # =========================
                 target_dist = e.progress * lane.length
                 dist_acc = 0
                 dx, dy = 1, 0
@@ -54,62 +48,86 @@ class MovementSystem:
                 vx = dx / length if length else 1
                 vy = dy / length if length else 0
 
-                # =========================
-                # 🚦 ŚWIATŁO
-                # =========================
                 light = lane.traffic_light
+
                 dx_l = light.x - e.x
                 dy_l = light.y - e.y
 
                 distance_to_light = math.hypot(dx_l, dy_l)
                 approaching = (dx_l * vx + dy_l * vy) > 0
 
-                if light.state in ["RED", "YELLOW"] and approaching:
+                if lane.lane_type == "tram":
+                    state = getattr(light, "state", "STOP")
 
-                    if distance_to_light < 80:
-                        speed_factor = min(speed_factor, distance_to_light / 80)
+                    allowed = (
+                        state == "ALL" or
+                        state == lane.turn
+                    )
 
-                    if distance_to_light < 30:
-                        e.is_stopped = True
-                        speed_factor = 0.0
-                        e.was_waiting_at_light = True
+                    if not allowed and approaching:
+                        braking_zone = 150
 
-                # =========================
-                # 🚗 AUTO PRZED (FIXED)
-                # =========================
-                candidates = lane.vehicles[:]
-                for n in lane.neighbors:
-                    candidates.extend(n.vehicles)
+                        if distance_to_light < braking_zone:
+                            speed_factor = min(speed_factor, distance_to_light / braking_zone)
 
+                        if distance_to_light < 80 + e.length:
+                            e.is_stopped = True
+                            speed_factor = 0.0
+
+                else:
+                    if light.state in ["RED", "YELLOW"] and approaching:
+
+                        if distance_to_light < 80:
+                            speed_factor = min(speed_factor, distance_to_light / 80)
+
+                        if distance_to_light < 30:
+                            e.is_stopped = True
+                            speed_factor = 0.0
+                            e.was_waiting_at_light = True
+
+                candidates = []
+                for entity in sim.entities:
+                    if entity is e: 
+                        continue
+                    
+                    dist_approx = abs(entity.x - e.x) + abs(entity.y - e.y)
+                    if dist_approx < 400:
+                        candidates.append(entity)
+            
                 ahead = None
                 min_gap = float("inf")
 
                 for other in candidates:
-                    if other is e:
-                        continue
-
                     dx_o = other.x - e.x
                     dy_o = other.y - e.y
                     dist = math.hypot(dx_o, dy_o)
 
                     dot = dx_o * vx + dy_o * vy
-
-                    # 🔥 KLUCZ: tylko auta w tej samej linii
                     lateral = abs(dx_o * -vy + dy_o * vx)
 
-                    if dot > 0 and dist < min_gap and lateral < 25:
-                        min_gap = dist
-                        ahead = other
+                    if hasattr(e, "is_tram"):
+                        lateral_limit = 12 
+                    else:
+                        lateral_limit = 25 
 
+                    
+                    if dot > 0 and lateral < lateral_limit:
+                        if dist < min_gap:
+                            safe_distance = 60
+                            if hasattr(other, "is_tram"):
+                                safe_distance = 100 
+                            
+                            if dist < safe_distance + (e.current_speed * 0.2):
+                                min_gap = dist
+                                ahead = other
                 if ahead:
                     gap = min_gap
 
                     speed_self = e.current_speed
-                    speed_ahead = getattr(ahead, "current_speed", 0)
-
-                    min_gap_safe = 20 + e.length * 4
-
-                    # 🔥 dużo mniejszy reaction gap
+                    if hasattr(e, "is_tram"):
+                        min_gap_safe = 100  
+                    else:
+                        min_gap_safe = 40 + e.length * 2
                     reaction_gap = min_gap_safe + speed_self * 0.3
 
                     if gap < reaction_gap:
@@ -118,12 +136,7 @@ class MovementSystem:
                         if gap < min_gap_safe:
                             e.is_stopped = True
                             speed_factor = 0.0
-                    else:
-                        speed_factor = 1.0
 
-                # =========================
-                # 🚀 PRZYSPIESZENIE
-                # =========================
                 if e.is_stopped:
                     e.current_speed -= e.brake_power * dt
                 else:
@@ -141,16 +154,10 @@ class MovementSystem:
 
                 e.current_speed = max(0, min(e.current_speed, e.max_speed))
 
-                # =========================
-                # 🏃 RUCH
-                # =========================
                 if not e.is_stopped:
                     e.progress += (e.current_speed * dt / lane.length) * speed_factor
                     e.progress = min(e.progress, 1)
 
-                # =========================
-                # 📍 POZYCJA
-                # =========================
                 target_dist = e.progress * lane.length
                 dist_acc = 0
 
@@ -178,9 +185,6 @@ class MovementSystem:
                 else:
                     e.x, e.y = lane.points[-1]
 
-                # =========================
-                # CLEANUP
-                # =========================
                 if e.progress >= 1:
                     to_remove.append(e)
 

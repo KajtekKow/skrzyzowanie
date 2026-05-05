@@ -1,17 +1,17 @@
 import math
 
 class Lane:
-    def __init__(self, points, traffic_light, direction):
+    def __init__(self, points, traffic_light, direction, lane_type="car"):
         self.points = points
         self.traffic_light = traffic_light
         self.direction = direction
+        self.lane_type = lane_type
         self.vehicles = []
-
+        self.id = None
         self.forward = 1
         self.stop_progress = 0.4
         self.neighbors = []
 
-        # długość całej ścieżki
         self.length = 0
         for i in range(len(points) - 1):
             x1, y1 = points[i]
@@ -22,3 +22,6 @@ class Lane:
         self.vehicles.append(vehicle)
         vehicle.lane = self
         vehicle.progress = 0
+        
+        if hasattr(vehicle, "is_tram") and hasattr(self, "turn"):
+            vehicle.turn = self.turn

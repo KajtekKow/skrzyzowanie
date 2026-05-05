@@ -1,57 +1,161 @@
 import random
-from entities.moving_entities import Car, Bus
+from entities.moving_entities import Car, Bus, Tram
+
 
 class SpawnSystem:
-    def __init__(self, spawn_interval=1.5):
+    def __init__(self, spawn_interval=1.2):
         self.timer = 0
         self.spawn_interval = spawn_interval
 
+        self.spawned_total = 0
+        self.spawned_types = {
+            "car": 0,
+            "delivery": 0,
+            "bus": 0,
+            "tram": 0
+        }
+
+        self.approach_weights = {
+            "A": 0.35,
+            "B": 0.30,
+            "C": 0.20,
+            "D": 0.15
+        }
+
+    def choose_vehicle_type(self):
+        weights = {
+            "car": 88.5,
+            "delivery": 6.9,
+            "tram": 2.0,
+            "bus": 2.6
+        }
+
+        total = sum(weights.values())
+
+        for k in weights:
+            weights[k] /= total
+
+        r = random.random()
+        cumulative = 0
+
+        for k, v in weights.items():
+            cumulative += v
+            if r < cumulative:
+                return k
+
+    def get_time_multiplier(self, hour):
+        if 0 <= hour < 5:
+            return 0.15
+        elif 5 <= hour < 7:
+            return 0.6
+        elif 7 <= hour < 9:
+            return 2.5
+        elif 9 <= hour < 14:
+            return 1.2
+        elif 14 <= hour < 18:
+            return 2.8
+        elif 18 <= hour < 22:
+            return 1.0
+        else:
+            return 0.3
+
     def update(self, sim, dt, index):
         self.timer += dt
+        mult = max(0.05, self.get_time_multiplier(sim.time_of_day))
+        effective_interval = self.spawn_interval / mult
 
-        if self.timer < self.spawn_interval:
+        max_entities = 150 if sim.time_scale > 50 else 300 
+        
+        if len(sim.entities) < max_entities:
+            if self.timer >= effective_interval:
+                self.timer = 0
+                self.spawn_vehicle(sim)
+                
+    def spawn_vehicle(self, sim):
+        lanes = sim.intersection.lanes
+        if len(sim.entities) > 300:
             return
 
-        self.timer = 0
+        vehicle_type = self.choose_vehicle_type()
 
-        lane = random.choice(sim.intersection.lanes)
+        if 0 <= sim.time_of_day < 5 and vehicle_type == "tram":
+            return
 
-        # =========================
-        # 🚫 BLOKADA SPAWNU
-        # =========================
+        possible_lanes = []
+
+        for l in lanes:
+            if vehicle_type == "tram" and l.lane_type == "tram":
+                possible_lanes.append(l)
+
+            elif vehicle_type == "bus" and l.lane_type in ["bus", "MIXED"]:
+                possible_lanes.append(l)
+
+            elif vehicle_type in ["car", "delivery"] and l.lane_type in ["car", "MIXED"]:
+                possible_lanes.append(l)
+
+                weights = [
+                    self.approach_weights.get(getattr(l, "approach", "A"), 0.25)
+                    for l in possible_lanes
+        ]
+
+        weights = []
+
+        for l in possible_lanes:
+            base = self.approach_weights.get(getattr(l, "approach", "A"), 0.25)
+
+            if vehicle_type == "tram":
+                base *= 1.0   
+
+                if hasattr(l, "approach"):
+                    if l.approach == "A":   
+                        base *= 0.7
+                    elif l.approach == "B":
+                        base *= 1.0
+                    elif l.approach == "C":
+                        base *= 1.2
+                    elif l.approach == "D":
+                        base *= 1.2
+
+            weights.append(base)
+
+        lane = random.choices(possible_lanes, weights=weights)[0]
+
         if lane.vehicles:
             first = min(lane.vehicles, key=lambda v: v.progress)
-
-            # jeśli ktoś jest blisko startu → nie spawnuj
             gap = first.progress * lane.length
-            if gap < 60:
+            if gap < 50:
                 return
 
-        # =========================
-        # 🎯 POPRAWNY DIRECTION
-        # =========================
         direction = 0 if lane.direction == "horizontal" else 1
 
-        # =========================
-        # 🚗 SPAWN
-        # =========================
-        if random.random() < 0.7:
-            v = Car(0, 0, direction)
-        else:
+        v = None
+
+        if vehicle_type == "tram":
+            v = Tram(0, 0, direction)
+            v.max_speed = 300
+            v.acceleration = 120
+            v.brake_power = 300
+
+        elif vehicle_type == "bus":
             v = Bus(0, 0, direction)
 
-        # 🚀 PRĘDKOŚĆ
+        elif vehicle_type == "delivery":
+            v = Car(0, 0, direction)
+            v.is_delivery = True
+
+        else:
+            v = Car(0, 0, direction)
+
+        if v is None:
+            return
+
         v.current_speed = 0
+        v.acceleration = random.uniform(120, 200)
+        v.brake_power = random.uniform(250, 350)
+        v.max_speed = 260 + random.randint(-20, 20)
 
-        v.acceleration = random.uniform(120, 220)
-        v.brake_power = random.uniform(250, 400)
-        v.reaction_time = random.uniform(0.2, 0.8)
-
-        v.wait_timer = 0
-
-        base_speed = 280
-        variation = random.randint(-30, 30)
-        v.max_speed = base_speed + variation
+        if hasattr(v, "is_delivery"):
+            v.max_speed *= 0.85
 
         if lane.direction == "horizontal":
             v.vx = v.max_speed
@@ -62,3 +166,24 @@ class SpawnSystem:
 
         lane.add_vehicle(v)
         sim.add_entity(v)
+
+        self.spawned_total += 1
+
+        if hasattr(v, "is_tram"):
+            self.spawned_types["tram"] += 1
+        elif hasattr(v, "is_bus"):
+            self.spawned_types["bus"] += 1
+        elif hasattr(v, "is_delivery"):
+            self.spawned_types["delivery"] += 1
+        else:
+            self.spawned_types["car"] += 1
+
+    def get_stats(self):
+        total = max(1, self.spawned_total)
+
+        return {
+            "car": self.spawned_types["car"] / total * 100,
+            "delivery": self.spawned_types["delivery"] / total * 100,
+            "bus": self.spawned_types["bus"] / total * 100,
+            "tram": self.spawned_types["tram"] / total * 100,
+        }
