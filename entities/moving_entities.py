@@ -28,7 +28,7 @@ class Vehicle(MovingEntity):
 
 class Car(Vehicle):
     def __init__(self, x, y, direction):
-        super().__init__(x, y, direction, vx = 120 + np.random.randint(-10, 10), vy=40)
+        super().__init__(x, y, direction, vx = 280 + np.random.randint(-10, 10), vy=280 + np.random.randint(-10, 10))
 
 
 class Bus(Vehicle):
