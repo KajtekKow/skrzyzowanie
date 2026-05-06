@@ -178,6 +178,10 @@ class SpawnSystem:
         else:
             self.spawned_types["car"] += 1
 
+        stats = next((s for s in sim.systems if hasattr(s, "register_vehicle")), None)
+        if stats:
+            stats.register_vehicle(v, sim)
+
     def get_stats(self):
         total = max(1, self.spawned_total)
 

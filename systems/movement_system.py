@@ -24,6 +24,9 @@ class MovementSystem:
                     e.wait_timer = 0
                     e.was_waiting_at_light = False
 
+                    if not hasattr(e, "total_wait_time"):
+                        e.total_wait_time = 0
+
                 e.is_stopped = False
                 speed_factor = 1.0
 
@@ -139,6 +142,7 @@ class MovementSystem:
 
                 if e.is_stopped:
                     e.current_speed -= e.brake_power * dt
+                    e.total_wait_time += dt   
                 else:
                     if e.was_waiting_at_light:
                         e.wait_timer += dt
@@ -187,6 +191,10 @@ class MovementSystem:
 
                 if e.progress >= 1:
                     to_remove.append(e)
+
+                    stats = next((s for s in sim.systems if hasattr(s, "register_wait_time")), None)
+                    if stats:
+                        stats.register_wait_time(e, getattr(e, "total_wait_time", 0))
 
             for e in to_remove:
                 if e in lane.vehicles:
