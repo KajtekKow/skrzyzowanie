@@ -1,7 +1,6 @@
 from infrastructure.lane import Lane
 from infrastructure.traffic_light import TrafficLight
 from infrastructure.tram_light import TramLight
-import numpy as np
 
 class Intersection:
     def __init__(self):
