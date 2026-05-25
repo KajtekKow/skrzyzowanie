@@ -25,9 +25,17 @@ class Simulation:
     def update(self, dt):
         dt *= self.time_scale
 
-        dt = min(dt, 0.1)
+        dt = min(dt, 0.3)
 
         self.sim_time += dt
+        current_hour = int(self.sim_time // 3600)
+
+        if not hasattr(self, "last_print_hour"):
+            self.last_print_hour = -1
+
+        if current_hour != self.last_print_hour:
+            self.last_print_hour = current_hour
+            print(f"Postęp: {current_hour}h / 24h")
 
         self.time_of_day += dt / 3600
         self.time_of_day %= 24

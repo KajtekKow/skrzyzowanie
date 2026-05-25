@@ -18,10 +18,10 @@ class MovementSystem:
                     e.current_speed = 0
                     e.max_speed = max(abs(e.vx), abs(e.vy))
 
-                    e.acceleration = 320
-                    e.brake_power = 500
+                    e.acceleration = 70
+                    e.brake_power = 400
 
-                    e.reaction_time = random.uniform(0.7, 1.4)
+                    e.reaction_time = random.uniform(0.9, 1.4)
 
                     # 1% kierowcow zamulonych
                     if random.random() < 0.01:
@@ -85,10 +85,10 @@ class MovementSystem:
                 else:
                     if light.state in ["RED", "YELLOW"] and approaching:
 
-                        if distance_to_light < 80:
-                            speed_factor = min(speed_factor, distance_to_light / 80)
+                        if distance_to_light < 180:
+                            speed_factor = min(speed_factor, distance_to_light / 180)
 
-                        if distance_to_light < 30:
+                        if distance_to_light < 60:
                             e.is_stopped = True
                             speed_factor = 0.0
                             e.was_waiting_at_light = True
@@ -136,7 +136,7 @@ class MovementSystem:
                         min_gap_safe = 100  
                     else:
                         min_gap_safe = 40 + e.length * 2
-                    reaction_gap = min_gap_safe + speed_self * 0.3
+                    reaction_gap = min_gap_safe + speed_self * 0.8
 
                     if gap < reaction_gap:
                         speed_factor = min(speed_factor, gap / reaction_gap)
@@ -164,7 +164,9 @@ class MovementSystem:
                 e.current_speed = max(0, min(e.current_speed, e.max_speed))
 
                 if not e.is_stopped:
-                    e.progress += (e.current_speed * dt / lane.length) * speed_factor
+                    effective_speed = e.current_speed * speed_factor
+
+                    e.progress += (effective_speed * dt / lane.length)
                     e.progress = min(e.progress, 1)
 
                 target_dist = e.progress * lane.length

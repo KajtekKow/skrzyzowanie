@@ -132,9 +132,9 @@ class SpawnSystem:
 
         if vehicle_type == "tram":
             v = Tram(0, 0, direction)
-            v.max_speed = 300
-            v.acceleration = random.uniform(45, 90)
-            v.brake_power = random.uniform(180, 260)
+            v.max_speed = 150
+            v.acceleration = random.uniform(25, 55)
+            v.brake_power = random.uniform(120, 220)
 
         elif vehicle_type == "bus":
             v = Bus(0, 0, direction)
@@ -150,9 +150,9 @@ class SpawnSystem:
             return
 
         v.current_speed = 0
-        v.acceleration = random.uniform(120, 200)
-        v.brake_power = random.uniform(250, 350)
-        v.max_speed = 260 + random.randint(-20, 20)
+        v.acceleration = random.uniform(18, 40)
+        v.brake_power = random.uniform(120, 220)
+        v.max_speed = random.uniform(90, 130)
 
         if hasattr(v, "is_delivery"):
             v.max_speed *= 0.85

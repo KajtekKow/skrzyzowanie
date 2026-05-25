@@ -110,23 +110,23 @@ class Intersection:
         self.lanes[19].neighbors.append(self.lanes[17])
 
 
-        # self.phases = [
-        #     {"cars": [0,1,2,5,6,7,15,16], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
-        #     {"cars": [3,4],         "trams": {0: "STOP",    1: "STOP", 2: "STOP", 3: "STOP"}},
-        #     {"cars": [8,9,10,11],   "trams": {0: "RIGHT",     1: "STOP", 2: "LEFT", 3: "STOP"}},
-        #     {"cars": [12,13,14],    "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}},
-        # ]
         self.phases = [
             {"cars": [0,1,2,5,6,7,15,16], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
-            {"cars": [2,7,11,12], "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}}, 
             {"cars": [3,4],         "trams": {0: "STOP",    1: "STOP", 2: "STOP", 3: "STOP"}},
             {"cars": [8,9,10,11],   "trams": {0: "RIGHT",     1: "STOP", 2: "LEFT", 3: "STOP"}},
             {"cars": [12,13,14],    "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}},
         ]
+        # self.phases = [
+        #     {"cars": [0,1,2,5,6,7,15,16], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
+        #     {"cars": [2,7,11,12], "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}}, 
+        #     {"cars": [3,4],         "trams": {0: "STOP",    1: "STOP", 2: "STOP", 3: "STOP"}},
+        #     {"cars": [8,9,10,11],   "trams": {0: "RIGHT",     1: "STOP", 2: "LEFT", 3: "STOP"}},
+        #     {"cars": [12,13,14],    "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}},
+        # ]
 
         self.current_phase = 0
         self.phase_timer = 0
-        self.green_time = 45
+        self.green_time = 50
         self.yellow_time = 5
 
         # zachód (A)
@@ -173,6 +173,25 @@ class Intersection:
                     light.state = "RED"
             else:
                 light.state = "RED"
+
+        has_vehicle = False
+
+        for lane in self.lanes:
+
+            if lane.traffic_light in [self.lights[i] for i in car_phase]:
+
+                for v in lane.vehicles:
+
+                    dx = lane.traffic_light.x - v.x
+                    dy = lane.traffic_light.y - v.y
+                    dist = (dx**2 + dy**2)**0.5
+
+                    if dist < 180:
+                        has_vehicle = True
+                        break
+
+        if not has_vehicle and self.phase_timer > self.green_time * 0.25:
+            self.phase_timer += dt * 5
 
         if self.phase_timer > self.green_time + self.yellow_time:
             self.phase_timer = 0

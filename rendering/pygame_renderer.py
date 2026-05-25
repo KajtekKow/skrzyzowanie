@@ -23,7 +23,7 @@ class Renderer:
             "morning_peak": pygame.Rect(1500, 260, 100, 30),
             "evening_peak": pygame.Rect(1500, 300, 100, 30),
             "x20": pygame.Rect(1590, 20, 80, 30),
-            "x60": pygame.Rect(1590, 60, 80, 30),
+            "x1000": pygame.Rect(1590, 60, 80, 30),
         }
         self.paused = False
                 
@@ -72,7 +72,7 @@ class Renderer:
                 self.screen.blit(rotated, r.topleft)
 
         pygame.display.flip()
-        self.clock.tick(60)
+        self.clock.tick(0)
 
     def handle_buttons(self, sim):
         mouse_pos = pygame.mouse.get_pos()
@@ -134,9 +134,9 @@ class Renderer:
             self.paused = False
             sim.time_scale = 20.0
 
-        elif self.buttons["x60"].collidepoint(mouse_pos):
+        elif self.buttons["x1000"].collidepoint(mouse_pos):
             self.paused = False
-            sim.time_scale = 60.0
+            sim.time_scale = 1000.0
 
     def draw_buttons(self, sim):
         for name, rect in self.buttons.items():

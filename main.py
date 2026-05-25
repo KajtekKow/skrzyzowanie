@@ -28,10 +28,18 @@ running = True
 
 while running:
     steps = 1
-    if sim.time_scale > 20: steps = 4  
-    if sim.time_scale > 500: steps = 10 
-    
-    sub_dt = 0.016 / steps
+
+    if sim.time_scale >= 20:
+        steps = 4
+
+    if sim.time_scale >= 100:
+        steps = 40
+
+    if sim.time_scale >= 1000:
+        steps = 120
+
+    sub_dt = 0.016
+
     for _ in range(steps):
         sim.update(sub_dt)
 
@@ -44,6 +52,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    renderer.draw(sim)
+    if sim.time_scale < 50:
+        renderer.draw(sim)
 
 pygame.quit()

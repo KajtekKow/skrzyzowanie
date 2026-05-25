@@ -1,0 +1,3 @@
+=== STATYSTYKI ===
+Sredni czas oczekiwania: 69.52 s
+Liczba pojazdow: 60678
