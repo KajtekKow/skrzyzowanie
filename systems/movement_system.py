@@ -1,4 +1,5 @@
 import math
+import random
 
 class MovementSystem:
     def update(self, sim, dt, index):
@@ -20,7 +21,11 @@ class MovementSystem:
                     e.acceleration = 320
                     e.brake_power = 500
 
-                    e.reaction_time = 0.4
+                    e.reaction_time = random.uniform(0.7, 1.4)
+
+                    # 1% kierowcow zamulonych
+                    if random.random() < 0.01:
+                        e.reaction_time += random.uniform(1.0, 3.0)
                     e.wait_timer = 0
                     e.was_waiting_at_light = False
 
@@ -150,7 +155,7 @@ class MovementSystem:
                         if e.wait_timer >= e.reaction_time:
                             e.current_speed += e.acceleration * dt
 
-                        if e.current_speed > 5:
+                        if e.current_speed > 20:
                             e.was_waiting_at_light = False
                             e.wait_timer = 0
                     else:

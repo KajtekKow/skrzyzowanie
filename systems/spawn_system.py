@@ -45,9 +45,9 @@ class SpawnSystem:
 
     def get_time_multiplier(self, hour):
         if 0 <= hour < 5:
-            return 0.15
+            return 0.2
         elif 5 <= hour < 7:
-            return 0.6
+            return 0.8
         elif 7 <= hour < 9:
             return 2.5
         elif 9 <= hour < 14:
@@ -133,8 +133,8 @@ class SpawnSystem:
         if vehicle_type == "tram":
             v = Tram(0, 0, direction)
             v.max_speed = 300
-            v.acceleration = 120
-            v.brake_power = 300
+            v.acceleration = random.uniform(45, 90)
+            v.brake_power = random.uniform(180, 260)
 
         elif vehicle_type == "bus":
             v = Bus(0, 0, direction)

@@ -6,21 +6,24 @@ class Intersection:
     def __init__(self):
 
         self.lights = [
-            TrafficLight(1160, 450), # ruska -> legnicka prosto
-            TrafficLight(1160, 400), # ruska -> legnicka prosto
-            TrafficLight(1160, 350), # ruska -> podwale prawo
-            TrafficLight(1160, 500), # ruska -> podwale lewo
-            TrafficLight(760, 580), # legnicka -> podwale lewo
-            TrafficLight(760, 620), # legnicka -> ruska prosto
-            TrafficLight(760, 670), # legnicka -> ruska prosto
-            TrafficLight(760, 720), # legnicka -> podwale prawo
-            TrafficLight(1010, 738), # podawle -> legnicka lewo
-            TrafficLight(1055, 738), # podwale -> legnicka lewo/podwale prosto
-            TrafficLight(1100, 738), # podwale -> podwale prosto
-            TrafficLight(1145, 738), # podwale -> ruska prawo
-            TrafficLight(780, 338), # podwale -> legnicka prawo
-            TrafficLight(840, 338), # podwale -> podwale prosto
-            TrafficLight(900, 338) #podwale -> podwale prosto
+            TrafficLight(1160, 450), # ruska -> legnicka prosto 0
+            TrafficLight(1160, 400), # ruska -> legnicka prosto 1
+            TrafficLight(1195, 270), # ruska -> podwale prawo 2 <------
+            TrafficLight(1160, 500), # ruska -> podwale lewo 3
+            TrafficLight(760, 580), # legnicka -> podwale lewo 4
+            TrafficLight(760, 620), # legnicka -> ruska prosto 5
+            TrafficLight(760, 670), # legnicka -> ruska prosto 6
+            TrafficLight(725, 810), # legnicka -> podwale prawo 7 <-------
+            TrafficLight(1020, 738), # podawle -> legnicka lewo 8
+            TrafficLight(1075, 738), # podwale -> legnicka lewo/podwale prosto 9
+            TrafficLight(1130, 738), # podwale -> podwale prosto 10
+            TrafficLight(1195, 805), # podwale -> ruska prawo 11 <---------
+            TrafficLight(720, 275), # podwale -> legnicka prawo 12 <--------
+            TrafficLight(800, 338), # podwale -> podwale prosto 13
+            TrafficLight(900, 338), #podwale -> podwale prosto 14
+            TrafficLight(760, 720), #buspas legnicka -> ruska 15
+            TrafficLight(1160, 350), #buspas ruska -> legnicka 16
+            
         ]
 
         self.tram_lights = [
@@ -33,20 +36,20 @@ class Intersection:
         self.lanes = [
             Lane([(1920, 450), (960, 450),(900, 470), (0, 480)], self.lights[0], "horizontal"), 
             Lane([(1920, 400), (960, 400), (900, 420), (0, 430)], self.lights[1], "horizontal"),
-            Lane([(1920, 350), (1100, 350), (1100, 0)], self.lights[2], "horizontal"),
+            Lane([(1920, 350), (1290, 350),(1195, 270), (1100, 200 ), (1100, 0)], self.lights[2], "horizontal"),
             Lane([(1920, 500), (1100, 500), (1000, 550),(900, 650), (810, 720), (810, 1080)], self.lights[3], "horizontal", lane_type="MIXED"), #busy moge 3
             Lane([(1920, 500), (1100, 500), (1000, 550),(900, 650), (860, 720), (860, 1080)], self.lights[3], "horizontal"),
             Lane([(0, 580), (760, 580), (1100, 350), (1100, 0)], self.lights[4], "horizontal"),
             Lane([(0, 620),(760, 620), (1000, 615), (1100, 600), (1920, 600)], self.lights[5], "horizontal"),
             Lane([(0, 670),(760, 670), (1000, 650), (1100, 640), (1920, 640)], self.lights[6], "horizontal"),
-            Lane([(0, 720), (760, 720), (810, 720), (810, 1080)], self.lights[7], "horizontal"),
-            Lane([(1010, 1080), (1010, 738), (1010, 600), (960, 540), (900, 480), (0, 480)], self.lights[8], "vertical"),
-            Lane([(1055, 1080), (1055, 738), (1055, 480), (900, 450), (700, 430), (0, 430)], self.lights[9], "vertical"),
-            Lane([(1055, 1080), (1055, 738), (1040, 580),(1040, 0)], self.lights[9], "vertical"),
-            Lane([(1100, 1080), (1100, 738), (1100, 640), (1100, 0)], self.lights[10], "vertical", lane_type="MIXED"), # busy moga 12
-            Lane([(1145, 1080), (1145, 738), (1200, 640), (1920, 640)], self.lights[11], "vertical"),
-            Lane([(780, 0), (780, 338), (780, 380), (700, 400), (650, 430), (0, 430)], self.lights[12], "vertical"),
-            Lane([(840, 0), (840, 338), (810, 700), (810, 1080)], self.lights[13], "vertical", lane_type="MIXED"), # busy moga 15
+            Lane([(0, 720), (650, 720), (725, 810), (800,900), (810, 1080)], self.lights[7], "horizontal"),
+            Lane([(1020, 1080), (1020, 738), (1010, 600), (960, 540), (900, 480), (0, 480)], self.lights[8], "vertical"),
+            Lane([(1075, 1080), (1075, 738), (1055, 480), (900, 450), (700, 430), (0, 430)], self.lights[9], "vertical"),
+            Lane([(1075, 1080), (1075, 738), (1040, 580),(1040, 0)], self.lights[9], "vertical"),
+            Lane([(1130, 1080), (1130, 738), (1100, 640), (1100, 0)], self.lights[10], "vertical", lane_type="MIXED"), # busy moga 12
+            Lane([(1130, 1080), (1130, 920), (1195, 805), (1300, 700),(1400, 670), (1500, 640), (1920, 640)], self.lights[11], "vertical"),
+            Lane([(800, 0), (800, 200), (720, 275), (695, 290), (670, 370), (650, 400), (600, 430), (0, 430)], self.lights[12], "vertical"),
+            Lane([(800, 0), (800, 338), (810, 700), (810, 1080)], self.lights[13], "vertical", lane_type="MIXED"), # busy moga 15
             Lane([(900, 0), (900, 338), (860, 700), (860, 1080)], self.lights[14], "vertical"),
         ]
 
@@ -79,22 +82,22 @@ class Intersection:
         self.lanes.append(lane)
 
         lane = Lane([(0, 720), (760, 720),(900, 710), (1920, 700)],
-                    self.lights[7], "horizontal", lane_type = "bus")
+                    self.lights[15], "horizontal", lane_type = "bus")
         self.lanes.append(lane)
         
         lane = Lane([(1920, 350), (1160, 360), (900, 370), (0, 370)],
-                    self.lights[2], "horizontal", lane_type = "bus")
+                    self.lights[16], "horizontal", lane_type = "bus")
         self.lanes.append(lane)
 
-        lane = Lane([(1145, 1080), (1145, 738), (1200, 720), (1250, 700), (1920, 700)],
+        lane = Lane([(1130, 1080), (1130, 920), (1195, 805), (1300, 720), (1350, 700), (1920, 700)],
                     self.lights[11], "vertical", lane_type = "bus")
         self.lanes.append(lane)
 
-        lane = Lane([(780, 0), (780, 338), (700, 360), (650, 370), (0, 370)],
+        lane = Lane([(800, 0), (800, 200), (720, 275), (695, 290), (680, 360), (650, 370), (0, 370)],
                     self.lights[12], "vertical", lane_type = "bus")
         self.lanes.append(lane)
 
-        lane = Lane([(1055, 1080), (1055, 738), (1055, 480), (900, 400), (700, 370), (0, 370)],
+        lane = Lane([(1075, 1080), (1075, 738), (1055, 480), (900, 400), (700, 370), (0, 370)],
                     self.lights[9], "vertical", lane_type = "bus")
         self.lanes.append(lane)
 
@@ -107,8 +110,15 @@ class Intersection:
         self.lanes[19].neighbors.append(self.lanes[17])
 
 
+        # self.phases = [
+        #     {"cars": [0,1,2,5,6,7,15,16], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
+        #     {"cars": [3,4],         "trams": {0: "STOP",    1: "STOP", 2: "STOP", 3: "STOP"}},
+        #     {"cars": [8,9,10,11],   "trams": {0: "RIGHT",     1: "STOP", 2: "LEFT", 3: "STOP"}},
+        #     {"cars": [12,13,14],    "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}},
+        # ]
         self.phases = [
-            {"cars": [0,1,2,5,6,7], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
+            {"cars": [0,1,2,5,6,7,15,16], "trams": {0: "STRAIGHT", 1: "STOP", 2: "STOP", 3: "STRAIGHT"}},
+            {"cars": [2,7,11,12], "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}}, 
             {"cars": [3,4],         "trams": {0: "STOP",    1: "STOP", 2: "STOP", 3: "STOP"}},
             {"cars": [8,9,10,11],   "trams": {0: "RIGHT",     1: "STOP", 2: "LEFT", 3: "STOP"}},
             {"cars": [12,13,14],    "trams": {0: "STOP",     1: "STRAIGHT", 2:"STRAIGHT", 3:"STOP"}},
@@ -116,7 +126,7 @@ class Intersection:
 
         self.current_phase = 0
         self.phase_timer = 0
-        self.green_time = 35
+        self.green_time = 45
         self.yellow_time = 5
 
         # zachód (A)

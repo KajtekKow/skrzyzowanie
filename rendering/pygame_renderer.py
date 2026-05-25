@@ -296,6 +296,10 @@ class Renderer:
         pygame.draw.rect(self.screen, self.C_ROAD, (self.cx + 100, self.cy + offset - split_w//2, self.width, split_w))
 
         pygame.draw.rect(self.screen, self.C_ROAD, (self.cx - road_w//2, self.cy - road_w//2, road_w + 200, road_w))
+        pygame.draw.line(self.screen, self.C_ROAD, (650, 720), (800, 900), 80)
+        pygame.draw.line(self.screen, self.C_ROAD, (650, 360), (800, 180), 80)
+        pygame.draw.line(self.screen, self.C_ROAD, (1120, 900), (1270, 720), 80)
+        pygame.draw.line(self.screen, self.C_ROAD, (1120, 180), (1270, 360), 80)
 
     def draw_lane_markings(self):
         for y in [self.cy - 135, self.cy - 85]: 
@@ -312,7 +316,7 @@ class Renderer:
             for x in range(self.cx + 180, self.width, 40):
                 pygame.draw.line(self.screen, self.C_LINE, (x, y), (x + 20, y), 1)
 
-        for x in [self.cx - 150, self.cx - 90]: 
+        for x in [self.cx - 120]: 
             for y in range(0, self.cy - 200, 40):
                 pygame.draw.line(self.screen, self.C_LINE, (x, y), (x, y + 20), 1)
         x_in_north = self.cx + 120 
@@ -323,7 +327,7 @@ class Renderer:
         for y in range(self.cy + 200, self.height, 40):
             pygame.draw.line(self.screen, self.C_LINE, (x_in_south, y), (x_in_south, y + 20), 1)
 
-        for x in [self.cx + 80, self.cx + 120, self.cx + 160]:
+        for x in [self.cx + 90, self.cx + 140]:
             for y in range(self.cy + 200, self.height, 40):
                 pygame.draw.line(self.screen, self.C_LINE, (x, y), (x, y + 20), 1)
 
@@ -345,6 +349,14 @@ class Renderer:
 
     def draw_traffic_lights(self, sim):
         drawn_lights = set()
+        pygame.draw.line(self.screen, (255, 255, 255), (760, 738), (760, 565), 2)
+        pygame.draw.line(self.screen, (255, 255, 255), (1160, 515), (1160, 342), 2)
+        pygame.draw.line(self.screen, (255, 255, 255), (760, 338), (933, 338), 2)
+        pygame.draw.line(self.screen, (255, 255, 255), (1160, 738), (987, 738), 2)
+        pygame.draw.line(self.screen, (255,255,255), (695, 820), (745, 790), 2)
+        pygame.draw.line(self.screen, (255,255,255), (695, 260), (745, 290), 2)
+        pygame.draw.line(self.screen, (255,255,255), (1175, 790), (1225, 820), 2)            
+        pygame.draw.line(self.screen, (255,255,255), (1175, 290), (1225, 260), 2)
 
         for lane in sim.intersection.lanes:
             if lane.lane_type == "tram":
@@ -392,7 +404,4 @@ class Renderer:
                 pygame.draw.rect(self.screen, yellow, (lx - w//2,     draw_y - h//2, w, h), border_radius=2)
                 pygame.draw.rect(self.screen, green,  (lx + gap,      draw_y - h//2, w, h), border_radius=2)
 
-            pygame.draw.line(self.screen, (255, 255, 255), (760, 738), (760, 565), 2)
-            pygame.draw.line(self.screen, (255, 255, 255), (1160, 515), (1160, 342), 2)
-            pygame.draw.line(self.screen, (255, 255, 255), (760, 338), (933, 338), 2)
-            pygame.draw.line(self.screen, (255, 255, 255), (1160, 738), (987, 738), 2)
+            
