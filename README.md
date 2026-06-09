@@ -103,7 +103,8 @@ python main.py
 W interfejsie dostępne są przyciski:
 
 * `PAUSE / PLAY` — zatrzymanie lub wznowienie symulacji,
-* `X1`, `X5`, `X10`, `X20`, `X1000` — zmiana prędkości symulacji,
+* `X1`, `X5`, `X10`, `X20` — zmiana prędkości symulacji,
+* `X1000` - szybkie generowanie wykresów i danych,
 * `RESET` — zresetowanie symulacji,
 * `PEAK AM` — ustawienie porannego szczytu komunikacyjnego,
 * `PEAK PM` — ustawienie popołudniowego szczytu komunikacyjnego.
