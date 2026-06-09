@@ -26,33 +26,48 @@ sim.add_system(MovementSystem())
 
 running = True
 
+clock = pygame.time.Clock()
+FIXED_DT = 1 / 60
+accumulator = 0.0
+MAX_SUBSTEPS = 5
+
 while running:
-    steps = 1
+    
+    frame_dt = clock.tick(60) / 1000.0
+    frame_dt = min(frame_dt, 0.10)
 
-    if sim.time_scale >= 20:
-        steps = 4
-
-    if sim.time_scale >= 100:
-        steps = 40
-
-    if sim.time_scale >= 1000:
-        steps = 120
-
-    sub_dt = 0.016
-
-    for _ in range(steps):
-        sim.update(sub_dt)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
     if sim.sim_time >= 24 * 3600:
         print("Koniec symulacji (24h)")
         running = False
         break
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
     if sim.time_scale < 50:
+        accumulator += frame_dt
+
+        substeps = 0
+        while accumulator >= FIXED_DT and substeps < MAX_SUBSTEPS:
+            sim.update(FIXED_DT)
+            accumulator -= FIXED_DT
+            substeps += 1
+
+        if substeps == MAX_SUBSTEPS:
+            accumulator = 0.0
+
         renderer.draw(sim)
+
+    else:
+        if sim.time_scale >= 1000:
+            steps = 120
+        elif sim.time_scale >= 100:
+            steps = 40
+        else:
+            steps = 4
+
+        for _ in range(steps):
+            sim.update(FIXED_DT)
 
 pygame.quit()

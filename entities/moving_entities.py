@@ -1,4 +1,3 @@
-# === BASE ===
 import numpy as np
 
 class Entity:
@@ -46,3 +45,17 @@ class Tram(MovingEntity):
 class Pedestrian(MovingEntity):
     def __init__(self, x, y):
         super().__init__(x, y, vx=0, vy=20)
+
+class EmergencyVehicle(Car):
+    def __init__(self, x, y, direction):
+        super().__init__(x, y, direction)
+
+        self.is_emergency = True
+        self.length = 6
+        self.priority_radius = 260
+
+        self.max_speed = 170
+        self.acceleration = 130
+        self.brake_power = 260
+
+        self.lateral_offset = 0       

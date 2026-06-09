@@ -22,6 +22,11 @@ class Lane:
         self.vehicles.append(vehicle)
         vehicle.lane = self
         vehicle.progress = 0
+
+        vehicle.x = self.points[0][0]
+        vehicle.y = self.points[0][1]
+
+        vehicle.position_initialized = True
         
         if hasattr(vehicle, "is_tram") and hasattr(self, "turn"):
             vehicle.turn = self.turn

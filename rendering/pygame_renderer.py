@@ -1,3 +1,4 @@
+import math
 import pygame
 
 class Renderer:
@@ -12,6 +13,7 @@ class Renderer:
         self.car_surface = self.create_car_surface((130, 130, 130))  
         self.bus_surface = self.create_bus_surface((200, 160, 60))   
         self.tram_surface = self.create_tram_surface((100, 200, 255))
+        self.emergency_surface = self.create_car_surface((255, 255, 255))       
         self.cx = self.width // 2
         self.cy = self.height // 2
         self.buttons = {
@@ -40,6 +42,7 @@ class Renderer:
         self.draw_tracks()
         self.draw_traffic_lights(sim)
         self.draw_tram_lights(sim)
+        self.draw_bus_stop_markings(sim)
         self.draw_info_panel(sim)
         self.handle_buttons(sim)
         self.draw_buttons(sim)
@@ -49,6 +52,9 @@ class Renderer:
 
                 if hasattr(e, "is_tram"):
                     base = self.tram_surface
+
+                elif hasattr(e, "is_emergency"):
+                    base = self.emergency_surface
 
                 elif hasattr(e, "is_delivery"):
                     base = self.delivery_surface
@@ -71,8 +77,92 @@ class Renderer:
 
                 self.screen.blit(rotated, r.topleft)
 
+                if hasattr(e, "is_emergency"):
+                    blink = (pygame.time.get_ticks() // 200) % 2
+
+                    light_color = (40, 120, 255) if blink == 0 else (255, 40, 40)
+
+                    siren = pygame.Surface((14, 14), pygame.SRCALPHA)
+                    pygame.draw.circle(siren, light_color, (7, 7), 5)
+                    pygame.draw.circle(siren, (*light_color, 80), (7, 7), 7)
+
+                    rot_siren = pygame.transform.rotate(siren, e.angle)
+                    siren_rect = rot_siren.get_rect(center=(e.x, e.y - 10))
+
+                    self.screen.blit(rot_siren, siren_rect.topleft)
+
         pygame.display.flip()
         self.clock.tick(0)
+
+    def draw_bus_stop_markings(self, sim):
+        if not hasattr(sim.intersection, "bus_stops"):
+            return
+
+        for stop in sim.intersection.bus_stops:
+            x, y = stop["point"]
+
+            lane_indexes = stop.get("lane_index", [])
+            if not isinstance(lane_indexes, list):
+                lane_indexes = [lane_indexes]
+
+            main_lane = None
+            for idx in lane_indexes:
+                if 0 <= idx < len(sim.intersection.lanes):
+                    main_lane = sim.intersection.lanes[idx]
+                    break
+
+            if main_lane is None:
+                continue
+
+            stop_len = 200   
+            stop_thick = 65 
+            point_gap = 12   
+
+            if main_lane.direction == "horizontal":
+                if y < self.cy:
+                    rect_x = int(x - 10)
+                    rect_y = int(self.cy - 200)
+                else:
+                    rect_x = int(x - stop_len + 10)
+                    rect_y = int(self.cy + 135)
+
+                rect = pygame.Rect(rect_x, rect_y, stop_len, stop_thick)
+
+            else:
+                if y < self.cy:
+                    rect_y = int(y)
+                else:
+                    rect_y = int(y - stop_len - point_gap)
+
+                rect_x = int(x - stop_thick // 2)
+                rect = pygame.Rect(rect_x, rect_y, stop_thick, stop_len)
+
+            stop_surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+
+            pygame.draw.rect(
+                stop_surface,
+                (255, 210, 40, 55),
+                (0, 0, rect.width, rect.height),
+                border_radius=4
+            )
+
+            pygame.draw.rect(
+                stop_surface,
+                (255, 220, 60, 230),
+                (0, 0, rect.width, rect.height),
+                3,
+                border_radius=4
+            )
+
+            label = self.font.render("BUS STOP", True, (255, 240, 120))
+            
+            if main_lane.direction == "vertical":
+                label = pygame.transform.rotate(label, 90)
+
+            label_rect = label.get_rect(center=(rect.width // 2, rect.height // 2))
+            stop_surface.blit(label, label_rect)
+
+            self.screen.blit(stop_surface, rect.topleft)
 
     def handle_buttons(self, sim):
         mouse_pos = pygame.mouse.get_pos()
@@ -281,6 +371,22 @@ class Renderer:
 
         return surf
     
+    def create_emergency_surface(self):
+        surf = pygame.Surface((34, 16), pygame.SRCALPHA)
+
+        pygame.draw.rect(surf, (245, 245, 245), (0, 0, 34, 16), border_radius=4)
+
+        pygame.draw.rect(surf, (210, 30, 30), (14, 2, 6, 12), border_radius=1)
+        pygame.draw.rect(surf, (210, 30, 30), (8, 6, 18, 4), border_radius=1)
+
+        pygame.draw.rect(surf, (70, 70, 70), (5, 3, 8, 10), border_radius=2)
+        pygame.draw.rect(surf, (70, 70, 70), (21, 3, 8, 10), border_radius=2)
+
+        pygame.draw.rect(surf, (240, 240, 240), (30, 3, 2, 3), border_radius=1)
+        pygame.draw.rect(surf, (240, 240, 240), (30, 10, 2, 3), border_radius=1)
+
+        return surf
+    
     def draw_layout(self):
         road_w = 400 
         split_w = 160 
@@ -332,7 +438,6 @@ class Renderer:
                 pygame.draw.line(self.screen, self.C_LINE, (x, y), (x, y + 20), 1)
 
     def draw_tracks(self):
-        import math
         t_bg_w = 50
 
         pygame.draw.rect(self.screen, (50, 50, 50), (0, self.cy - t_bg_w//2, self.width, t_bg_w))
@@ -359,15 +464,19 @@ class Renderer:
         pygame.draw.line(self.screen, (255,255,255), (1175, 290), (1225, 260), 2)
 
         for lane in sim.intersection.lanes:
-            if lane.lane_type == "tram":
+            if lane.lane_type in ["tram", "bike", "emergency"]:
                 continue
 
             light = lane.traffic_light
 
             if not hasattr(light, "state"):
                 continue
-                    
+
+            if light in drawn_lights:
+                continue
+
             drawn_lights.add(light)
+
             lx, ly = light.x, light.y
 
             horizontal = lane.direction == "horizontal"

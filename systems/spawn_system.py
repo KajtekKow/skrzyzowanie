@@ -1,5 +1,5 @@
 import random
-from entities.moving_entities import Car, Bus, Tram
+from entities.moving_entities import Car, Bus, Tram, EmergencyVehicle
 
 
 class SpawnSystem:
@@ -12,7 +12,8 @@ class SpawnSystem:
             "car": 0,
             "delivery": 0,
             "bus": 0,
-            "tram": 0
+            "tram": 0,
+            "emergency": 0
         }
 
         self.approach_weights = {
@@ -24,10 +25,11 @@ class SpawnSystem:
 
     def choose_vehicle_type(self):
         weights = {
-            "car": 88.5,
+            "car": 87.5,
             "delivery": 6.9,
             "tram": 2.0,
-            "bus": 2.6
+            "bus": 2.6,
+            "emergency": 1.0
         }
 
         total = sum(weights.values())
@@ -93,10 +95,11 @@ class SpawnSystem:
             elif vehicle_type in ["car", "delivery"] and l.lane_type in ["car", "MIXED"]:
                 possible_lanes.append(l)
 
-                weights = [
-                    self.approach_weights.get(getattr(l, "approach", "A"), 0.25)
-                    for l in possible_lanes
-        ]
+            elif vehicle_type == "emergency" and l.lane_type == "emergency":
+                possible_lanes.append(l)
+
+        if not possible_lanes:
+            return
 
         weights = []
 
@@ -132,7 +135,7 @@ class SpawnSystem:
 
         if vehicle_type == "tram":
             v = Tram(0, 0, direction)
-            v.max_speed = 150
+            v.max_speed = 165
             v.acceleration = random.uniform(25, 55)
             v.brake_power = random.uniform(120, 220)
 
@@ -143,19 +146,28 @@ class SpawnSystem:
             v = Car(0, 0, direction)
             v.is_delivery = True
 
+        elif vehicle_type == "emergency":
+            v = EmergencyVehicle(0, 0, direction)
+
         else:
             v = Car(0, 0, direction)
 
         if v is None:
             return
 
-        v.current_speed = 0
-        v.acceleration = random.uniform(18, 40)
-        v.brake_power = random.uniform(120, 220)
-        v.max_speed = random.uniform(90, 130)
+        if hasattr(v, "is_emergency"):
+            v.acceleration = random.uniform(200, 250)
+            v.brake_power = random.uniform(180, 280)
+            v.max_speed = random.uniform(180, 250)
+        else:
+            v.acceleration = random.uniform(100, 160)
+            v.brake_power = random.uniform(120, 220)
+            v.max_speed = random.uniform(130, 180)
 
         if hasattr(v, "is_delivery"):
             v.max_speed *= 0.85
+
+        v.current_speed = v.max_speed * 0.85
 
         if lane.direction == "horizontal":
             v.vx = v.max_speed
@@ -171,6 +183,8 @@ class SpawnSystem:
 
         if hasattr(v, "is_tram"):
             self.spawned_types["tram"] += 1
+        elif hasattr(v, "is_emergency"):
+            self.spawned_types["emergency"] += 1
         elif hasattr(v, "is_bus"):
             self.spawned_types["bus"] += 1
         elif hasattr(v, "is_delivery"):
